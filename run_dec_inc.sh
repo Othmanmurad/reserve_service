@@ -8,7 +8,7 @@
 # Usage (from this folder):
 #   bash run_dec_inc.sh --fleet-size 1000
 #   bash run_dec_inc.sh --fleet-size 1500 --dec-target-kw 200 --dec-duration-hr 2 \
-#                       --inc-target-kw 150 --inc-duration-hr 4 --root /mnt/shared/dataset
+#                       --inc-target-kw 150 --inc-duration-hr 4 --root /mnt/archive/dataset
 # Run it inside tmux (or with nohup) so it survives closing the SSH session.
 
 FLEET_SIZE=1000
@@ -16,8 +16,9 @@ DEC_TARGET_KW=120
 DEC_DURATION_HR=1
 INC_TARGET_KW=100
 INC_DURATION_HR=4
-# Output root: the shared drive's dataset folder, mounted on this machine.
-ROOT="${OCHRE_DATASET_ROOT:-/mnt/shared/dataset}"
+# Output root: the shared drive's dataset folder (SharedDrive is /mnt/archive
+# on the Ubuntu server that hosts it; Z:\dataset on Windows).
+ROOT="${OCHRE_DATASET_ROOT:-/mnt/archive/dataset}"
 
 while [ $# -gt 0 ]; do
     case "$1" in
