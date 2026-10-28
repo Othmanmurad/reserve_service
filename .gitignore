@@ -8,3 +8,5 @@ _ochre_scratch/
 Filtered_Schedules/
 logs/
 Ready_data/
+
+.last_*
