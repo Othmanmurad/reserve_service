@@ -1,0 +1,10 @@
+# Python environment: rebuild on each PC from requirements.txt
+.venv/
+__pycache__/
+*.pyc
+
+# Generated while running (recreated automatically)
+_ochre_scratch/
+Filtered_Schedules/
+logs/
+Ready_data/

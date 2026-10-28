@@ -1,0 +1,17 @@
+# IEEE_PES environment -- Python 3.12 (ochre-nrel 0.9.2 requires Python < 3.13).
+# Create with:
+#   C:\Users\othma\AppData\Local\Programs\Python\Python312\python.exe -m venv .venv
+#   .venv\Scripts\python.exe -m pip install -r requirements.txt
+
+# OCHRE (pulls in its own dependencies: boto3, click, fastparquet, nrel-pysam,
+# numba, pint, psychrolib, pvlib, python-dateutil, pytz, rainflow, xmltodict, ...)
+ochre-nrel==0.9.2
+
+# Used directly by the IEEE_PES scripts; pinned to a combination known to work
+# together with OCHRE (ochre needs numpy 1.26.x, and newer pyarrow releases
+# require numpy >= 2).
+numpy==1.26.4
+pandas==2.3.3
+matplotlib==3.11.1
+scipy==1.17.1
+pyarrow==25.0.1
