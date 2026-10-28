@@ -52,10 +52,12 @@ FILTERED_SCHED_DIR = os.path.join(WORKING_DIR, "Filtered_Schedules")
 
 # Large-scale outputs live on the shared drive (each test in its own
 # <root>/<test name>/ folder; the baseline cache under its own root).
-# Env vars override, e.g. with a UNC path when Z: isn't mapped.
-DEC_RESULTS_ROOT = os.environ.get('OCHRE_DEC_RESULTS_DIR', r"Z:\dataset\DEC")
-INC_RESULTS_ROOT = os.environ.get('OCHRE_INC_RESULTS_DIR', r"Z:\dataset\INC")
-BASELINE_CACHE_DIR = os.environ.get('OCHRE_BASELINE_DIR', r"Z:\dataset\Baseline")
+# SharedDrive is /mnt/archive on the Ubuntu server that hosts it and Z: on
+# Windows. Env vars override, e.g. with a UNC path when Z: isn't mapped.
+DATASET_ROOT = r"Z:\dataset" if os.name == "nt" else "/mnt/archive/dataset"
+DEC_RESULTS_ROOT = os.environ.get('OCHRE_DEC_RESULTS_DIR', os.path.join(DATASET_ROOT, "DEC"))
+INC_RESULTS_ROOT = os.environ.get('OCHRE_INC_RESULTS_DIR', os.path.join(DATASET_ROOT, "INC"))
+BASELINE_CACHE_DIR = os.environ.get('OCHRE_BASELINE_DIR', os.path.join(DATASET_ROOT, "Baseline"))
 
 # Per-unit OCHRE scratch output (local disk -- fast, and deleted as soon as
 # each unit is finalized). See unit_scratch_dir().

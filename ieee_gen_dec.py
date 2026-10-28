@@ -109,24 +109,34 @@ from ieee_pes_common import (
 _dwelling_init_lock = threading.Lock()
 
 #########################################
+# TEST SETUP -- change these for each test
+#########################################
+
+FLEET_SIZE = 1000         # number of units: the first FLEET_SIZE rows of Input_Files/virtual_units.csv (up to 10000)
+TARGET_DELTA_KW = 120.0   # target added load (controlled - baseline), kW
+EVENT_DURATION_HR = 1.0   # reserve event duration, hours
+
+#########################################
 # USER SETTINGS
 #########################################
 
-# Distinct name per test run -- change before each run so results don't
-# overwrite each other. OCHRE_FILENAME overrides this when set.
-filename = os.environ.get('OCHRE_FILENAME', 'IEEE_DEC_Testing')
+# Environment variables (set by run_dec_inc.ps1) override the TEST SETUP
+# values when set.
+FLEET_SIZE = int(os.environ.get('OCHRE_FLEET_SIZE', FLEET_SIZE))
+TARGET_DELTA_KW = float(os.environ.get('OCHRE_TARGET_DELTA_KW', TARGET_DELTA_KW))
+EVENT_DURATION_HR = float(os.environ.get('OCHRE_DURATION_HR', EVENT_DURATION_HR))
+
+# Test name, built from the TEST SETUP values so different tests never
+# overwrite each other's results. OCHRE_FILENAME overrides this when set.
+filename = os.environ.get(
+    'OCHRE_FILENAME', f"IEEE_DEC_{FLEET_SIZE}_{TARGET_DELTA_KW:g}kW_{EVENT_DURATION_HR:g}h"
+)
 
 # pipeline="IEEE_DEC" -- distinct from "RU"/"RU_V2" so this experimental
 # file's last-run state never collides with HPWH_B4_Reserve_RU.py's
 # (official/Excel) or HPWH_B3_Reserve_V2.py's own state. Read back by
 # ieee_dec_results.py.
 save_filename(filename, pipeline="IEEE_DEC")
-
-# Number of virtual units in this test's fleet -- the FIRST FLEET_SIZE
-# rows of Input_Files/virtual_units.csv (see ieee_pes_common.py: any size
-# up to the manifest's 10000 works, and a smaller fleet is always a subset
-# of a larger one). OCHRE_FLEET_SIZE overrides this when set.
-FLEET_SIZE = int(os.environ.get('OCHRE_FLEET_SIZE', 1000))
 
 # Inputs (base homes, weather, manifest) come from this project's own
 # Input_Files/ -- see ieee_pes_common.py.
@@ -165,11 +175,12 @@ Tinit = 128
 # DEC = LOAD (increase consumption) -- see module docstring. This file is
 # single-purpose (DEC/LOAD only) -- the dispatch loop always commands LOAD.
 
-# OCHRE_DISPATCH_TIME / OCHRE_DURATION_HR override these when set.
+# OCHRE_DISPATCH_TIME overrides the dispatch time when set; the duration is
+# EVENT_DURATION_HR (TEST SETUP).
 if 'reserve_event' not in globals():
     reserve_event = {
         'dispatch_time': os.environ.get('OCHRE_DISPATCH_TIME', '14:00'),
-        'duration': float(os.environ.get('OCHRE_DURATION_HR', 1.0))
+        'duration': EVENT_DURATION_HR
     }
 
 save_reserve_event(reserve_event, pipeline="IEEE_DEC")
@@ -196,7 +207,7 @@ event_end = dispatch_t + pd.Timedelta(hours=reserve_event['duration'])
 # actual reserve contribution relative to baseline -- NOT raw total power,
 # which also includes the never-dispatched homes' own normal hot-water
 # usage (computed/logged alongside as sum_p(t), for reference only).
-TARGET_DELTA_KW = float(os.environ.get('OCHRE_TARGET_DELTA_KW', 120.0))
+# TARGET_DELTA_KW itself is set in TEST SETUP.
 BAND_KW = float(os.environ.get('OCHRE_BAND_KW', 0.5))
 
 # Persist alongside dispatch_time/duration so ieee_dec_results.py's plots
