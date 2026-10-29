@@ -166,6 +166,24 @@ def remove_unit_scratch(run_name, unit_id):
     shutil.rmtree(unit_scratch_dir(run_name, unit_id), ignore_errors=True)
 
 #########################################
+# FREEING A PAUSED UNIT'S USED SCHEDULE ROWS -- OCHRE turns each
+# simulator's whole input schedule into a list of per-timestep dicts and
+# steps through it with an iterator (Simulator.reset_time:
+# iter(schedule.to_dict('records'))). That iterator keeps the WHOLE list
+# alive, so a unit paused at dispatch_t still holds every row it has
+# already used. Re-wrapping just the remaining rows frees the used ones:
+# ~16 MB -> ~6 MB per paused unit (measured), with identical results since
+# the remaining rows are untouched. Call it on each unit right after it
+# pauses, so later units reuse the freed memory.
+#########################################
+
+def free_used_schedule_rows(simulator):
+    if getattr(simulator, "schedule_iterable", None) is not None:
+        simulator.schedule_iterable = iter(list(simulator.schedule_iterable))
+    for sub in simulator.sub_simulators:
+        free_used_schedule_rows(sub)
+
+#########################################
 # BASELINE CACHE
 #########################################
 

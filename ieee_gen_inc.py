@@ -109,7 +109,7 @@ from ieee_pes_common import (
     Input_folder, WEATHER_FILE, XML_ADDRESS, select_fleet, get_filtered_schedule_file,
     make_canonical_times, to_canonical, baseline_cache_dir, load_cached_baseline,
     save_cached_baseline, DAY_SLICE_BASE_START, SLICE_DAYS, INC_RESULTS_ROOT,
-    unit_scratch_dir, remove_unit_scratch, SCRATCH_DIR,
+    unit_scratch_dir, remove_unit_scratch, SCRATCH_DIR, free_used_schedule_rows,
 )
 
 _dwelling_init_lock = threading.Lock()
@@ -444,6 +444,8 @@ def simulate_home_phase1(unit, weather_file_path):
             resume_idx = i + 1
             break  # pause here; the shed-dispatch loop resumes from resume_idx
 
+    free_used_schedule_rows(sim_dwelling)
+
     return {
         "unit_id": unit["unit_id"],
         "home_path": unit["home_path"],
@@ -691,6 +693,7 @@ def finalize_and_save_home(phase1_result, baseline_result):
     tank_temp_log = phase1_result["tank_temp_log"]
 
     df_ctrl, _, _ = sim_dwelling.finalize()
+    phase1_result["sim_dwelling"] = None  # release the unit's model now, not at the end of the run
     remove_unit_scratch(filename, unit_id)
     df_ctrl = to_canonical(df_ctrl, CANONICAL_TIMES)
 
